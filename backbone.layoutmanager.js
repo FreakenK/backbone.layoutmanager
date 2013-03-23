@@ -814,10 +814,16 @@ var LayoutManager = Backbone.View.extend({
   }
 });
 
-// Convenience assignment to make creating Layout's slightly shorter.
-Backbone.Layout = LayoutManager;
 // Tack on the version.
 LayoutManager.VERSION = "0.9.0-pre";
+
+// Expose LayoutManager.
+Backbone.Layout = LayoutManager;
+
+})(typeof global === "object" ? global : this);
+
+(function(window) {
+
 
 // Override _configure to provide extra functionality that is necessary in
 // order for the render function reference to be bound during initialize.
@@ -916,4 +922,25 @@ LayoutManager.prototype.options = {
 // Maintain a list of the keys at define time.
 keys = _.keys(LayoutManager.prototype.options);
 
-})(typeof global === "object" ? global : this);
+// Some AMD build optimizers, like r.js, check for specific condition patterns
+// like the following:
+if (typeof define == "function" && typeof define.amd == "object" && define.amd) {
+  // define as an anonymous module so, through path mapping, it can be
+  // referenced as the "underscore" module
+  define(["backbone", function() {
+    return _;
+  });
+}
+// check for `exports` after `define` in case a build optimizer adds an `exports` object
+else if (freeExports && !freeExports.nodeType) {
+  // in Node.js or RingoJS v0.8.0+
+  if (freeModule) {
+    (freeModule.exports = _)._ = _;
+  }
+  // in Narwhal or RingoJS v0.7.0-
+  else {
+    freeExports._ = _;
+  }
+}
+
+
